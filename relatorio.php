@@ -19,19 +19,22 @@ if ($conn->connect_error) {
 }
 
 // Consulta para buscar os usuários cadastrados
-$sql = "SELECT id, nome FROM usuario";
+$sql = "SELECT id, nome, idade, sexo FROM usuario";
 $result = $conn->query($sql);
+
 
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Usuários Cadastrados</title>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
+
 <body>
     <div class="container">
         <h2>Relatório de Usuários Cadastrados</h2>
@@ -39,12 +42,14 @@ $result = $conn->query($sql);
         <?php
         if ($result->num_rows > 0) {
             echo "<table>";
-            echo "<tr><th>ID</th><th>Nome</th><th>Ações</th></tr>";
+            echo "<tr><th>ID</th><th>Nome</th><th>Idade</th><th>Sexo</th><th>Ações</th></tr>";
             // Exibe os dados de cada linha
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>
                         <td>" . $row["id"] . "</td>
                         <td>" . $row["nome"] . "</td>
+                        <td>" . $row["idade"] . "</td>
+                        <td>" . $row["sexo"] . "</td>
                         <td>
                             <a href='editar.php?id=" . $row["id"] . "' class='btn'>Editar</a>
                             <a href='deletar.php?id=" . $row["id"] . "' class='btn' onclick='return confirm(\"Tem certeza que deseja deletar este usuário?\")'>Deletar</a>
@@ -67,4 +72,5 @@ $result = $conn->query($sql);
         </form>
     </div>
 </body>
+
 </html>

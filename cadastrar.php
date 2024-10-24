@@ -1,5 +1,6 @@
 <?php
-class Database {
+class Database
+{
     private $host = "localhost";
     private $db_name = "base";
     private $username = "root"; // ou seu usuário do MySQL
@@ -7,7 +8,8 @@ class Database {
     public $conn;
 
     // Conectar ao banco de dados
-    public function getConnection() {
+    public function getConnection()
+    {
         $this->conn = null;
         try {
             $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
@@ -19,23 +21,36 @@ class Database {
     }
 }
 
-class Usuario {
+class Usuario
+{
     private $conn;
     private $table_name = "usuario";
 
     public $id;
     public $nome;
+    public $idade;
+    public $sexo;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
     // Método para criar um novo usuário
-    public function criarUsuario() {
-        $query = "INSERT INTO " . $this->table_name . " (nome) VALUES (:nome)";
+    public function criarUsuario()
+    {
+        $query = "CALL InserirUsuario(:nome, :idade, :sexo)";
         $stmt = $this->conn->prepare($query);
+
+        // Limpar dados
         $this->nome = htmlspecialchars(strip_tags($this->nome));
+        $this->idade = htmlspecialchars(strip_tags($this->idade));
+        $this->sexo = htmlspecialchars(strip_tags($this->sexo));
+
+        // Vincular parâmetros
         $stmt->bindParam(":nome", $this->nome);
+        $stmt->bindParam(":idade", $this->idade);
+        $stmt->bindParam(":sexo", $this->sexo);
 
         if ($stmt->execute()) {
             return true;
@@ -44,7 +59,8 @@ class Usuario {
     }
 
     // Método para listar todos os usuários
-    public function listarUsuarios() {
+    public function listarUsuarios()
+    {
         $query = "SELECT * FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -52,19 +68,22 @@ class Usuario {
     }
 }
 
-class Mensagem {
+class Mensagem
+{
     private $conn;
     private $table_name = "mensagem";
 
     public $id;
     public $mensagem;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
     // Método para registrar uma mensagem
-    public function registrarMensagem() {
+    public function registrarMensagem()
+    {
         $query = "INSERT INTO " . $this->table_name . " (mensagem) VALUES (:mensagem)";
         $stmt = $this->conn->prepare($query);
         $this->mensagem = htmlspecialchars(strip_tags($this->mensagem));
@@ -84,14 +103,18 @@ $db = $database->getConnection();
 // Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nome = $_POST['nome'];
+    $idade = $_POST['idade'];
+    $sexo = $_POST['sexo'];
 
-    if (!empty($nome)) {
+    if (!empty($nome) && !empty($idade) && !empty($sexo)) {
         // Criar um novo objeto Usuario e Mensagem
         $usuario = new Usuario($db);
         $mensagem = new Mensagem($db);
 
         // Atribuir o nome ao objeto Usuario
         $usuario->nome = $nome;
+        $usuario->idade = $idade;
+        $usuario->sexo = $sexo;
 
         // Inserir o usuário e registrar a mensagem
         if ($usuario->criarUsuario()) {
@@ -112,20 +135,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Usuário</title>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
+
 <body>
     <div class="container"> <!-- Tag <div> corrigida -->
         <h2>Cadastro de Usuário</h2>
 
-        <!-- Formulário de Cadastro -->
         <form action="cadastrar.php" method="post">
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" required><br><br>
+
+            <label for="idade">Idade:</label>
+            <input type="number" id="idade" name="idade" required><br><br>
+
+            <label for="sexo">Sexo:</label>
+            <select id="sexo" name="sexo" required>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+            </select><br><br>
+
             <input type="submit" value="Cadastrar">
         </form>
 
@@ -143,6 +177,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ?>
     </div>
 </body>
+
 </html>
-
-

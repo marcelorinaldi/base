@@ -15,20 +15,29 @@ if ($conn->connect_error) {
 // Obter o ID do usuário a ser deletado
 $id = $_GET['id'];
 
-// Deletar o usuário
-$sql = "DELETE FROM usuario WHERE id = $id";
+// Verificar se o usuário existe
+$sql_verificar = "SELECT nome FROM usuario WHERE id = $id";
+$result = $conn->query($sql_verificar);
 
-if ($conn->query($sql) === TRUE) {
-    // Inserir uma mensagem na tabela "mensagem"
-    $mensagem = "Usuário ID $id deletado.";
-    $sql_mensagem = "INSERT INTO mensagem (mensagem) VALUES ('$mensagem')";
-    $conn->query($sql_mensagem);
+if ($result->num_rows > 0) {
+    // Deletar o usuário
+    $sql = "DELETE FROM usuario WHERE id = $id";
 
-    // Redirecionar de volta para o relatório
-    header("Location: relatorio.php");
+    if ($conn->query($sql) === TRUE) {
+        // Inserir uma mensagem na tabela "mensagem"
+        $usuario = $result->fetch_assoc();
+        $nome_usuario = $usuario['nome'];
+        $mensagem = "Usuário ID $id ($nome_usuario) deletado.";
+        $sql_mensagem = "INSERT INTO mensagem (mensagem) VALUES ('$mensagem')";
+        $conn->query($sql_mensagem);
+
+        // Redirecionar de volta para o relatório
+        header("Location: relatorio.php");
+    } else {
+        echo "Erro ao deletar o usuário: " . $conn->error;
+    }
 } else {
-    echo "Erro ao deletar o usuário: " . $conn->error;
+    echo "Usuário não encontrado.";
 }
 
 $conn->close();
-?>

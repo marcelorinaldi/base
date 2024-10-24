@@ -18,9 +18,11 @@ $id = $_GET['id'];
 // Se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $novo_nome = $_POST['nome'];
+    $nova_idade = $_POST['idade'];
+    $novo_sexo = $_POST['sexo'];
 
-    // Atualizar o nome do usuário
-    $sql = "UPDATE usuario SET nome = '$novo_nome' WHERE id = $id";
+    // Atualizar os dados do usuário
+    $sql = "UPDATE usuario SET nome = '$novo_nome', idade = '$nova_idade', sexo = '$novo_sexo' WHERE id = $id";
     if ($conn->query($sql) === TRUE) {
         // Inserir uma mensagem na tabela "mensagem"
         $mensagem = "Usuário ID $id atualizado.";
@@ -33,8 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Erro ao atualizar o usuário: " . $conn->error;
     }
 } else {
-    // Obter o nome atual do usuário
-    $sql = "SELECT nome FROM usuario WHERE id = $id";
+    // Obter os dados atuais do usuário
+    $sql = "SELECT nome, idade, sexo FROM usuario WHERE id = $id";
     $result = $conn->query($sql);
     $usuario = $result->fetch_assoc();
 }
@@ -42,12 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Usuário</title>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
+
 <body>
     <div class="container">
         <h2>Editar Usuário</h2>
@@ -56,6 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="editar.php?id=<?php echo $id; ?>" method="post">
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" value="<?php echo $usuario['nome']; ?>" required><br><br>
+
+            <label for="idade">Idade:</label>
+            <input type="number" id="idade" name="idade" value="<?php echo $usuario['idade']; ?>" required><br><br>
+
+            <label for="sexo">Sexo:</label>
+            <select id="sexo" name="sexo" required>
+                <option value="M" <?php echo ($usuario['sexo'] == 'M') ? 'selected' : ''; ?>>Masculino</option>
+                <option value="F" <?php echo ($usuario['sexo'] == 'F') ? 'selected' : ''; ?>>Feminino</option>
+            </select><br><br>
+
             <input type="submit" value="Salvar">
         </form>
 
@@ -66,4 +80,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </body>
+
 </html>
